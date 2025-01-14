@@ -11,8 +11,12 @@ def main():
   for i, op in enumerate(oprts):
     if i == 0:
       continue
-    if op['type'] != initial_op['type']:
+    if op['type'] != initial_op['type'] and initial_op['type'] == 'C':
       # calc profit/loss
+      result = initial_op['price'] - op['price']
+      pass
+    elif op['type'] != initial_op['type'] and initial_op['type'] == 'V':
+      result = -initial_op['price'] + op['price']
       pass
     else:
       # process and store operation with previous ones
