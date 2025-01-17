@@ -20,7 +20,6 @@ class Operation:
     ops_count = sheet.count(axis=0).iloc[0]
     operations = []
     for i in range(ops_count):
-
       op = Operation(
         date=sheet.iloc[i]['date'],
         ticker=sheet.iloc[i]['ticker'],
