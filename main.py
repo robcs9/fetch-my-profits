@@ -76,35 +76,24 @@ def main():
   # if init_type == 'C': init - current
   # if init_type == 'V': -(init - current)
   
-  
+  alpa4_monthly_trades = splitByMonths(ticker_ops)
+  nov = alpa4_monthly_trades[11]
+  initial_nov = nov.iloc[0]
+  next_trades = nov.iloc[1:]
+  if len(next_trades) == 0:
+    print('No trades left to process for the month 11')
+    return None
+  total_values = [el for el in next_trades['price']]
+  total_values = [(el['price'] * el['quantity']) for el in next_trades]
+  for total in total_values:
+    print(initial_nov['price'] * initial_nov['quantity'] - total)
   # if next['operation'] != initial['operation']
   # calculation = initial['total'] - initial['operation'] if initial['operation'] == 'C' else next['total'] - initial['total']
   # reassessedQuantity = 
   # initial = 0; initial = initial - quantity if SELL else initial + quantity
   # calculate using yearly total shorts and longs (for taxes)
   # calculate monthly transactions value - double check stocks taxing rules (exempt)
-  next = ticker_ops.iloc[1]['total']
-  result = ticker_ops
-  # result = ticker_ops.loc[ticker_ops['date'] > datetime.date.fromisoformat('2024-11-18')]
-  result = ticker_ops.loc[ticker_ops['date'] > dt.date.fromisoformat('2024-11-01')]
   
-  monthly_trades = splitByMonths(ticker_ops)
-  
-  # initial_op = oprts.iloc[0]
-  # for i, op in enumerate(oprts):
-  #   if i == 0:
-  #     continue
-  #   if op['type'] != initial_op['type'] and initial_op['type'] == 'C':
-  #     # calc profit/loss
-  #     result = initial_op['price'] - op['price']
-  #     consolidated = True
-  #     pass
-  #   elif op['type'] != initial_op['type'] and initial_op['type'] == 'V':
-  #     result = -initial_op['price'] + op['price']
-  #     pass
-  #   else:
-  #     # process and store operation with previous ones
-  #     pass
   
 if __name__ == "__main__":
   main()
