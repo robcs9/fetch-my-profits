@@ -46,7 +46,7 @@ def calcProfitLoss(rec: dict, tran: dict):
   #   rec['losses'].append(-abs(diff))
   if diff <= 0:
     rec['profitlosses'].append(abs(diff))
-  if diff > 0:
+  else:
     rec['profitlosses'].append(-abs(diff))
   return rec
   # 1000 + -1100 = -100 (C profit)
@@ -72,6 +72,7 @@ def compareTransac(rec: dict, tran: dict): # rec, tran => record, transaction
   if tran['type'] == rec['type']:
     # rec['units'] = rec['units'] + tran['units']
     rec['avgPrice'] = (rec['avgPrice'] + tran['price']) / 2
+    rec['profitlosses'].append(0)
     # rec['amount'] = rec['amount'] + tran['amount']
   else:
     # record changes and calculate profit/loss
