@@ -5,4 +5,4 @@
 
 ## TO-DO
 
-- [] Rename "operation" column to "type"
+- [x] Rename "operation" column to "type"

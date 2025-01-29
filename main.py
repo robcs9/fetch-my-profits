@@ -95,7 +95,6 @@ def main():
       else:
         pass
     if alpa4['owned quantity'] >= 0 and alpa4['owned type'] == 'C':
-
       pass
     # alpa4['owned quantity'] += nxt['quantity']
     # alpa4['owned total'] += nxt['total']

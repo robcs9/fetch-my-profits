@@ -93,3 +93,39 @@ def compareTransac(rec: dict, tran: dict): # rec, tran (record, transaction)
       rec['type'] = 'C' if rec['type'] == 'V' else 'V'
   rec['units'] = updated_units
   return rec
+
+# initial = {
+#   'date': '2024-11-18', 'type': 'V', 'units': -300, 'price': 6.73, 'amount': -2019.0,
+# }
+# following = [
+#   {'date': '2024-11-27','type': 'C', 'units': 300, 'price': 6.89, 'amount': 2067.0},
+#   {'date': '2024-11-29','type': 'V', 'units': -200, 'price': 6.19, 'amount': -1238.0},
+#   {'date': '2024-12-13','type': 'V', 'units': -200, 'price': 6.19, 'amount': -1238.0},
+#   {'date': '2024-12-18','type': 'C', 'units': 400, 'price': 6.12, 'amount': 2448.0},
+#   {'date': '2024-12-26','type': 'V', 'units': -400, 'price': 6.18, 'amount': -2472.0},
+# ]
+
+# Expected results:
+# units flow: [-300, 0, -200, -400, 0, -400]
+# profitlosses: [0, -48, 0, 0, 28, 0]
+
+# record = {
+#   'count': 1,
+#   'trades': [initial.copy()],
+#   'units': initial['units'],
+#   'avgPrice': initial['price'],
+#   'type': initial['type'],
+#   'profitlosses': [0],
+# }
+
+
+# first comparison test
+# second_transac = copy.deepcopy(following[0])
+# second_transac = following[0].copy()
+# record = compareTransac(record.copy(), second_transac)
+
+# comparing transactions
+# for trade in following:
+#   next_tran = trade.copy()
+#   record = compareTransac(record.copy(), next_tran)
+# print(record)
