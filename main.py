@@ -2,16 +2,12 @@ import pandas as pd
 import datetime as dt
 from models.model import Operation
 from utils import replaceDates, replaceQuantities, splitByMonths, readSheet
+import math
 
 def main():
   sheet = readSheet('./carteira.csv')
-  # operations = Operation.buildOperations(sheet)
-  # print(vars(operations[0]))
-  # print([vars(op) for op in operations])
   shorts = []
   longs = []
-  profits = 0
-  losses = 0
   # Whenever an opposite type operation with the same ticker
   # is registered, calculate earnings and assign its consolidation status
   # 
@@ -35,7 +31,6 @@ def main():
   
   # sample test - ALPA4
   ticker_ops = grouping[2][1]
-
   # calculate monthly final quantity, profit and losses final result
   
   # monthly dates slicing (group operations per months as well before performing monthly calculations):
@@ -43,25 +38,6 @@ def main():
   #
   # reassign prices with proper sign based on the 'operation' column value
   
-  # total = -quant * price
-  # if init == 0:
-  # diff0 = 2019 (ignore)
-  # 
-  # init = -2019
-  # total_diff1 = -2019 + 2067 = -48
-  # quant_diff1 = -300 + 300 = 0
-  
-  # situation
-  # v - c
-  # loss = 2019 - 2067 = -48
-  # profit = 2019 - 2000 = 19
-  # 
-  # c - v
-  # profit = 2000 - 2019 = -19
-  # loss = 2019 - 2000 = 19
-  #
-  # if init_type == 'C': init - current
-  # if init_type == 'V': -(init - current)
   
   alpa4 = {
     'ops': ticker_ops,
@@ -76,18 +52,78 @@ def main():
   
   alpa4_monthly_trades = splitByMonths(ticker_ops)
   nov = alpa4_monthly_trades[11]
+  nov.loc[:,'total'] = nov['price'] * nov['quantity']
   initial_nov = nov.iloc[0]
   next_trades = nov.iloc[1:]
   if len(next_trades) == 0:
     print('No trades left to process for the month 11')
     return None
 
-  total_values = next_trades['price'] * next_trades['quantity']
+  profits = []
+  losses = []
+  # total_values = next_trades['price'] * next_trades['quantity']
   for idx, nxt in next_trades.iterrows():
+    liquidated = False
+    prev_quant = alpa4['owned quantity']
+    prev_total = alpa4['owned total']
+    profit = 0
+    loss = 0
+    sum = alpa4['owned total'] + nxt['total']
+    liquidating = 0
+    if abs(nxt['quantity']) >= abs(alpa4['owned quantity']):
+      liquidating = alpa4['owned']['price'] * abs(nxt['quantity'])
+      alpa4['owned type'] = 'V'
+    else:
+      liquidating = alpa4['owned quantity']
+    reversing_quantity = sum
+    alpa4['owned quantity'] += nxt['quantity']
+    # alpa4['owned total'] = ...
+    # curr_quant = nxt['quantity']
+    # new_quant = prev_quant + curr_quant
+    # alpa4['owned'] = nxt # latest trade processed
+    
+    
+    # register increase in owned shares
+    # if new_quant > prev_quant and alpa4['owned type'] == 'C':
     if nxt['operation'] != alpa4['owned type']:
-      nxt_total = nxt['price'] * nxt['quantity']
-      liquidated_total = alpa4['owned total'] + nxt_total
-      liquidated_quantity = alpa4['owned quantity'] + nxt['quantity']
+      liquidated = True
+      profit = -sum
+      if alpa4['owned type'] == 'C' and profit >= 0:
+        profits.append(profit)
+        alpa4['owned total'] = 0
+      else:
+        pass
+    if alpa4['owned quantity'] >= 0 and alpa4['owned type'] == 'C':
+
+      pass
+    # alpa4['owned quantity'] += nxt['quantity']
+    # alpa4['owned total'] += nxt['total']
+
+      
+
+    # register profit or loss
+    # elif new_quant >= 0 and alpa4['owned type'] == 'C':
+      
+    # register profit or loss and invert position if < 0
+    # elif new_quant <= 0 and alpa4['owned type'] == 'C':
+      # pass
+    # register increase in owned shares
+    # if new_quant < prev_quant and alpa4['owned type'] == 'V':
+      # pass
+    # if new_quant >= 0 and alpa4['owned type'] == 'V':
+      # pass
+    # if new_quant > prev_quant and alpa4['owned type'] == 'V':
+      # pass
+    # if nxt['operation'] != alpa4['owned type']:
+      # nxt_total = nxt['price'] * nxt['quantity']
+      # liquidated_total = alpa4['owned total'] + nxt_total
+      # liquidated_quantity = alpa4['owned quantity'] + nxt['quantity']
+      # liquidated = True
+
+    #if new quant value is greater than initial... or if it's lower... or if it's 0...
+    # if liquidated and alpa4['owned type'] == 'C':
+    # elif liquidated and alpa4['owned type'] == 'V':
+        
     # if quantity/total sign(s) changed, ...
     # if quantity/total become 0, ...
     # if none of the above changes, ...
