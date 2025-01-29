@@ -1,6 +1,7 @@
-import copy
+# import copy
 
-# initial => first transaction in the current month or the remaining last from the previous one
+# initial => first transaction in the current month or the remaining last one carried from the previous one
+# initial = last_month_rec attrs (prev_month_trades[-1], units, avgPrice, type) if rec['units'] != 0 else transactions[0]
 initial = {
   'date': '2024-11-18', 'type': 'V', 'units': -300, 'price': 6.73, 'amount': -2019.0,
 }
@@ -45,15 +46,8 @@ def calcProfitLoss(rec: dict, tran: dict):
   else:
     rec['profitlosses'].append(-abs(diff))
   return rec
-  # 1000 + -1100 = -100 (C profit)
-  # -1000 + 900 = -100 (V profit)
-  # 1000 + -900 = 100 (C loss)
-  # -1000 + 1100 = 100 (V loss)
-  # -1000 + 1000 = 0
-  # 1000 + -1000 = 0
-  
 
-def compareTransac(rec: dict, tran: dict): # rec, tran => record, transaction
+def compareTransac(rec: dict, tran: dict): # rec, tran (record, transaction)
   rec['trades'].append(tran)
   rec['count'] += 1
   updated_units = rec['units'] + tran['units']

@@ -50,3 +50,46 @@ def splitByMonths(ops: pd.DataFrame):
       trades.append(ops.loc[(ops['date'] >= pd.to_datetime(begin_date)) & (ops['date'] < pd.to_datetime(end_date))])
     
     return pd.Series(trades)
+
+def calcProfitLoss(rec: dict, tran: dict):
+  if rec['type'] == 'V':
+    diff = -(rec['avgPrice'] * abs(tran['units'])) + (tran['units']) * tran['price']
+  else:
+    diff = (rec['avgPrice'] * abs(tran['units'])) + (tran['units']) * tran['price']
+
+  if diff <= 0:
+    rec['profitlosses'].append(abs(diff))
+  else:
+    rec['profitlosses'].append(-abs(diff))
+  return rec
+
+def compareTransac(rec: dict, tran: dict): # rec, tran (record, transaction)
+  rec['trades'].append(tran)
+  rec['count'] += 1
+  updated_units = rec['units'] + tran['units']
+
+  if rec['units'] == 0:
+    rec['profitlosses'].append(0)
+    rec['avgPrice'] = tran['price']
+    rec['units'] = tran['units']
+    rec['type'] = tran['type']
+    return rec
+  
+  if tran['type'] == rec['type']:
+    rec['avgPrice'] = (rec['avgPrice'] + tran['price']) / 2
+    rec['profitlosses'].append(0)
+  else:
+    # record changes and calculate profit/loss
+    # updating units to match diff between the 2 transactions being compared to later calc the profit-loss
+    # make a function that returns the dict which has the min between rec['units'] and tran['units'] so that you can properly perform the corrections to the price * units calculation before the calcProfitLoss is called
+    
+    if abs(tran['units']) <= abs(rec['units']):
+      # rec['type'] won't change
+      rec = calcProfitLoss(rec, tran)
+    else:
+      # rec['type'] flips
+      # update units then calc profit/loss
+      rec = calcProfitLoss(rec, tran)
+      rec['type'] = 'C' if rec['type'] == 'V' else 'V'
+  rec['units'] = updated_units
+  return rec

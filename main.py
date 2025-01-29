@@ -2,6 +2,7 @@ import pandas as pd
 import datetime as dt
 from models.model import Operation
 from utils import replaceDates, replaceQuantities, splitByMonths, readSheet
+from utils import compareTransac
 import math
 
 def main():
