@@ -6,3 +6,4 @@
 ## TO-DO
 
 - [x] Rename "operation" column to "type"
+- [ ] Implement handler for remaining shares from the previous year to be passed into the calculations of the current year

@@ -1,6 +1,8 @@
 # Data
 data/
 carteira.csv
+carteira2024.csv
+carteira2025.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

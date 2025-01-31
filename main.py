@@ -98,7 +98,6 @@ def main():
       pass
     # alpa4['owned quantity'] += nxt['quantity']
     # alpa4['owned total'] += nxt['total']
-
       
 
     # register profit or loss
