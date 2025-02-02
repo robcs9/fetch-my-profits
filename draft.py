@@ -1,9 +1,6 @@
-# import copy
-
 import pandas as pd
 from utils import readSheet, replaceDates, replaceQuantities, splitByMonths, compareTransac
 
-# builds record of a given period of trades
 def buildRecord(ticker_trades: pd.DataFrame):
   # ticker_trades = ticker_trades.rename(columns={'operation': 'type'})
   if len(ticker_trades) < 1:
@@ -44,14 +41,6 @@ def sumRecordsResults(records: list[dict]):
         loss += pl
   return {'p': profit, 'l': loss}
   
-
-# Rewrite function to support records
-""" 
-calenda = {
-  '1': []
-}
-
-"""
 def splitRecordsbyMonths(records: list[dict], calendar: dict = None):
   # 2024
   if calendar is None:
@@ -65,24 +54,8 @@ def splitRecordsbyMonths(records: list[dict], calendar: dict = None):
       trade['ticker'] = record['ticker']
       trade['profit'] = record['profitlosses'][i]
       calendar[trade['date'].month].append(trade)
-    
-  # print(pd.DataFrame(
-  #   # {'a': ['ticker','a'], 'b': ['foo', 'bar']}
-  # ))
-  return calendar #, records[0]['profitlosses'][0]
-  ops['date'] = pd.to_datetime(ops['date'])
-  for month in range(1, 13):
-    begin_mm = f'{month}' if month > 9 else f'0{month}'
-    end_mm = f'{month+1}' if month + 1 > 9 else f'0{month+1}'
-    
-    begin_date = f'2024-{begin_mm}-01'
-    end_date = f'2024-{end_mm}-01'
-    if month == 12:
-      end_date = f'2025-01-01'
-    
-    trades.append(ops.loc[(ops['date'] >= pd.to_datetime(begin_date)) & (ops['date'] < pd.to_datetime(end_date))])
-  
-  return pd.Series(trades)
+
+  return calendar
 
 def sumMonthlyPL(calendar: dict):
   calendar_sums = {
@@ -129,8 +102,6 @@ def tickersMonthlyPL(calendar: dict):
       else:
         tickers_calendar[k][transac['ticker']]['sold units'] += transac['units']
       
-    # relatório para IR:
-    # mês: - ativo: unidades compras, unidades vendidas, l/p
   return tickers_calendar
 
 def main():
@@ -179,29 +150,6 @@ def main():
 
   monthly_tickers_results = tickersMonthlyPL(year_trades)
   print(monthly_tickers_results)
-  # remember to actually call the function for each separate months instead once splitTradesByMonths is rewritten
-  # eventually, leading to calling sumRecordsResults(splitTradesByMonths(records))
-
-  # also, split trades into months before calculating profits/losses
-  # for each stock so that 2 types of results can be kept (yearly stocks and monthly stocks results)
-
-  """ 
-  # sample test - ALPA4 November results
-  ticker_ops = grouping[2][1]
-  alpa4_monthly_trades = splitByMonths(ticker_ops)
-  alpa4_nov = alpa4_monthly_trades[10]
-  # initial = last_month_rec attrs (prev_month_trades[-1], units, avgPrice, type) if rec['units'] != 0 else transactions[0]
-  # initial record data => first transaction in the current month or the remaining last one carried from the previous one
-  record, following_trades = buildRecord(alpa4_nov.copy()) # pass monthly ticker trades? (alpa4_monthly_trades) in this case
-  if len(following_trades) == 0:
-    print('No trades available to process for the month 11')
-    # return record
-  
-  # comparing transactions
-  for trade in following_trades:
-    next_tran = trade.copy()
-    record = compareTransac(record.copy(), next_tran)
-  """
 
 
 if __name__ == '__main__':
