@@ -124,11 +124,10 @@ def tickersMonthlyPL(calendar: dict):
       else:
         tickers_calendar[k][transac['ticker']]['loss'] += transac['profit']
 
-      # Fix bug below: data not showing correctly
       if transac['units'] >= 0:
         tickers_calendar[k][transac['ticker']]['bought units'] += transac['units']
       else:
-        tickers_calendar[k][transac['ticker']]['bought units'] += transac['units']
+        tickers_calendar[k][transac['ticker']]['sold units'] += transac['units']
       
     # relatório para IR:
     # mês: - ativo: unidades compras, unidades vendidas, l/p
