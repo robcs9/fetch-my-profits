@@ -3,6 +3,8 @@ data/
 carteira.csv
 carteira2024.csv
 carteira2025.csv
+output.xlsx
+pl-results.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -46,9 +46,30 @@ def sumRecordsResults(records: list[dict]):
   
 
 # Rewrite function to support records
-def splitTradesByMonths(ops: pd.DataFrame):
-  return
-  trades = []
+""" 
+calenda = {
+  '1': []
+}
+
+"""
+def splitRecordsbyMonths(records: list[dict], calendar: dict = None):
+  # 2024
+  if calendar is None:
+    calendar = {
+      1:  [], 2:  [], 3:  [], 4:  [],
+      5:  [], 6:  [], 7:  [], 8:  [],
+      9:  [], 10: [], 11: [], 12: [],
+    }
+  for record in records:
+    for i, trade in enumerate(record['trades']):
+      trade['ticker'] = record['ticker']
+      trade['profit'] = record['profitlosses'][i]
+      calendar[trade['date'].month].append(trade)
+    
+  # print(pd.DataFrame(
+  #   # {'a': ['ticker','a'], 'b': ['foo', 'bar']}
+  # ))
+  return calendar #, records[0]['profitlosses'][0]
   ops['date'] = pd.to_datetime(ops['date'])
   for month in range(1, 13):
     begin_mm = f'{month}' if month > 9 else f'0{month}'
@@ -62,7 +83,57 @@ def splitTradesByMonths(ops: pd.DataFrame):
     trades.append(ops.loc[(ops['date'] >= pd.to_datetime(begin_date)) & (ops['date'] < pd.to_datetime(end_date))])
   
   return pd.Series(trades)
+
+def sumMonthlyPL(calendar: dict):
+  calendar_sums = {
+    1:  0, 2:  0, 3:  0, 4:  0,
+    5:  0, 6:  0, 7:  0, 8:  0,
+    9:  0, 10: 0, 11: 0, 12: 0,
+  }
+  for k in calendar:
+    if len(calendar[k]) == 0:
+      continue
+    for transac in calendar[k]:
+      calendar_sums[k] += transac['profit']
+      
+  return calendar_sums
+
+def tickersMonthlyPL(calendar: dict):
+  # tickers = pd.unique(sheet['ticker'])
+  tickers_calendar = {
+    1: {}, 2:  {}, 3:  {}, 4:  {},
+    5: {}, 6:  {}, 7:  {}, 8:  {},
+    9: {}, 10: {}, 11: {}, 12: {},
+  }
   
+  for k in calendar:
+    if len(calendar[k]) == 0:
+      continue
+    for transac in calendar[k]:
+      if tickers_calendar[k].get(transac['ticker']) is None:
+        # tickers_calendar[k][transac['ticker']] = []
+        tickers_calendar[k][transac['ticker']] = {
+          'profit': 0,
+          'loss': 0,
+          'bought units': 0,
+          'sold units': 0,
+        }
+      # tickers_calendar[k][transac['ticker']].append(transac['profit'])
+      if transac['profit'] >= 0:
+        tickers_calendar[k][transac['ticker']]['profit'] += transac['profit']
+      else:
+        tickers_calendar[k][transac['ticker']]['loss'] += transac['profit']
+
+      # Fix bug below: data not showing correctly
+      if transac['units'] >= 0:
+        tickers_calendar[k][transac['ticker']]['bought units'] += transac['units']
+      else:
+        tickers_calendar[k][transac['ticker']]['bought units'] += transac['units']
+      
+    # relatório para IR:
+    # mês: - ativo: unidades compras, unidades vendidas, l/p
+  return tickers_calendar
+
 def main():
   # to-do: handle all months by year to avoid mix ups
   sheet = readSheet('./carteira2024.csv')
@@ -83,13 +154,37 @@ def main():
       record = compareTransac(record, trade)
     tickers_records.append(record)
 
-  year_trades = splitTradesByMonths(tickers_records)
+  year_trades = splitRecordsbyMonths(tickers_records)
+  # print(year_trades)
   # testing sumRecordsResults
-  sum = sumRecordsResults(tickers_records) # returns total monthly profits and losses
-  print(sum)
+
+  yearly_pl = sumRecordsResults(tickers_records) # returns total monthly profits and losses
+  # print(f'Year 2024\nProfits: {yearly_pl['p']}\nLosses: {yearly_pl['l']}')
+
+  monthly_year_results = sumMonthlyPL(year_trades)
+  results_df = pd.DataFrame({
+    'Jan':  [monthly_year_results[1]],
+    'Fev':  [monthly_year_results[2]],
+    'Mar':  [monthly_year_results[3]],
+    'Abr':  [monthly_year_results[4]],
+    'Mai':  [monthly_year_results[5]],
+    'Jun':  [monthly_year_results[6]],
+    'Jul':  [monthly_year_results[7]],
+    'Ago':  [monthly_year_results[8]],
+    'Set':  [monthly_year_results[9]],
+    'Out':  [monthly_year_results[10]],
+    'Nov':  [monthly_year_results[11]],
+    'Dez':  [monthly_year_results[12]],
+  })
+  results_df.to_csv('pl-results.csv')
+
+  monthly_tickers_results = tickersMonthlyPL(year_trades)
+  print(monthly_tickers_results)
   # remember to actually call the function for each separate months instead once splitTradesByMonths is rewritten
   # eventually, leading to calling sumRecordsResults(splitTradesByMonths(records))
 
+  # also, split trades into months before calculating profits/losses
+  # for each stock so that 2 types of results can be kept (yearly stocks and monthly stocks results)
 
   """ 
   # sample test - ALPA4 November results
