@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from utils import readSheet, replaceDates, replaceQuantities, splitByMonths, compareTransac
 
@@ -104,6 +105,68 @@ def tickersMonthlyPL(calendar: dict):
       
   return tickers_calendar
 
+def saveResults(results):
+  df_example = pd.DataFrame.from_dict({
+    'Jan': [pd.DataFrame({'ticker': ['a','b']})],
+    'Fev': [pd.DataFrame({'ticker': ['c','d']})],
+    # 'Jan': {0: {'ticker': ['ABC'],'a': [1,2]}, 1: {'ticker': ['CDE'], 'a': [6,2]}},
+    # 'Fev': {0: {'ticker': ['ABC'],'a': [1,2]}, 1: {'ticker': ['CDE'], 'a': [6,2]}},
+  })
+  # print(results[8]['ABEV3'])
+  # print(df_example)
+
+  # building the multiindex excel sheet
+  months_cols = [
+    'Jan', 'Fev', 'Mar',
+    'Abr', 'Mai', 'Jun',
+    'Jul', 'Ago', 'Set',
+    'Out', 'Nov', 'Dez'
+  ]
+  cols1 = ['Unidades Compradas', 'Unidades Vendidas', 'Lucro', 'Prejuizo']
+  cols2 = ['Ticker', 'C/V', 'Unidades', 'Preço Medio', 'Lucro']
+  tickers_idx = ['ABC', 'CDE', 'EFG']
+  data1 = ('ABC',12,12,12,0)
+  data2 = [
+    ('ABC','C',3,12,12),('ABC','V',6,3,0),
+    ('DEF','V',12,234,0),('DEF','C',12,234,-23),
+  ]
+
+  
+  # cols = pd.MultiIndex(codes=[]) col_idxs
+  cols = pd.MultiIndex.from_tuples([(x,y) for x in months_cols for y in cols1])
+  idx = ['ABC', 'DEF', 'GHI', 'ABC', 'DEF']
+  df = pd.DataFrame(data=np.random.randn(5, 48), index=idx, columns=cols)
+  print(df)
+
+  # df = pd.DataFrame.from_dict(results)
+  index = {
+    'Jan':  results[1], 'Fev':  results[2], 'Mar':  results[3],
+    'Abr':  results[4], 'Mai':  results[5], 'Jun':  results[6],
+    'Jul':  results[7], 'Ago':  results[8], 'Set':  results[9],
+    'Out':  results[10], 'Nov':  results[11], 'Dez':  results[12],
+  }
+  # print(index['Jul'])
+  
+
+def saveCSV(monthly_results: dict):
+  results_df = pd.DataFrame({
+    'Jan':  [monthly_results[1]],
+    'Fev':  [monthly_results[2]],
+    'Mar':  [monthly_results[3]],
+    'Abr':  [monthly_results[4]],
+    'Mai':  [monthly_results[5]],
+    'Jun':  [monthly_results[6]],
+    'Jul':  [monthly_results[7]],
+    'Ago':  [monthly_results[8]],
+    'Set':  [monthly_results[9]],
+    'Out':  [monthly_results[10]],
+    'Nov':  [monthly_results[11]],
+    'Dez':  [monthly_results[12]],
+  })
+  # to-do: round-up decimals before saving
+  results_df.to_csv('pl-results.csv')
+  print('CSV has been saved!')
+
 def main():
   # to-do: handle all months by year to avoid mix ups
   sheet = readSheet('./carteira2024.csv')
@@ -132,25 +195,10 @@ def main():
   # print(f'Year 2024\nProfits: {yearly_pl['p']}\nLosses: {yearly_pl['l']}')
 
   monthly_year_results = sumMonthlyPL(year_trades)
-  results_df = pd.DataFrame({
-    'Jan':  [monthly_year_results[1]],
-    'Fev':  [monthly_year_results[2]],
-    'Mar':  [monthly_year_results[3]],
-    'Abr':  [monthly_year_results[4]],
-    'Mai':  [monthly_year_results[5]],
-    'Jun':  [monthly_year_results[6]],
-    'Jul':  [monthly_year_results[7]],
-    'Ago':  [monthly_year_results[8]],
-    'Set':  [monthly_year_results[9]],
-    'Out':  [monthly_year_results[10]],
-    'Nov':  [monthly_year_results[11]],
-    'Dez':  [monthly_year_results[12]],
-  })
-  results_df.to_csv('pl-results.csv')
+  saveCSV(monthly_year_results)
 
   monthly_tickers_results = tickersMonthlyPL(year_trades)
-  print(monthly_tickers_results)
-
+  saveResults(monthly_tickers_results)
 
 if __name__ == '__main__':
   main()
