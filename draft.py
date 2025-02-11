@@ -105,7 +105,7 @@ def tickersMonthlyPL(calendar: dict):
       
   return tickers_calendar
 
-def saveResults(results):
+def saveResults(results: dict):
   df_example = pd.DataFrame.from_dict({
     'Jan': [pd.DataFrame({'ticker': ['a','b']})],
     'Fev': [pd.DataFrame({'ticker': ['c','d']})],
@@ -136,7 +136,54 @@ def saveResults(results):
   cols = pd.MultiIndex.from_tuples([(x,y) for x in months_cols for y in cols1])
   idx = ['ABC', 'DEF', 'GHI', 'ABC', 'DEF']
   df = pd.DataFrame(data=np.random.randn(5, 48), index=idx, columns=cols)
-  print(df)
+  
+  calendar1_df = {
+    'Mes': [],
+    'Ticker': [],
+    'Lucro': [],
+    'Prejuizo': [],
+    'Unidades Compradas': [],
+    'Unidades Vendidas': [],
+    'Total Lucro': [],
+    'Total Prejuizo': [],
+  }
+  for month in results:
+    if len(results[month]) == 0:
+      continue
+      
+    # tickers = [ticker for ticker in results[month].values()]
+    tickers = [ticker for ticker in results[month].items()]
+    sum_profit = 0
+    sum_loss = 0
+    for i, ticker in enumerate(tickers):
+      calendar1_df['Mes'].append(month)
+      calendar1_df['Ticker'].append(ticker[0])
+      calendar1_df['Lucro'].append(ticker[1]['profit'])
+      calendar1_df['Prejuizo'].append(ticker[1]['loss'])
+      calendar1_df['Unidades Compradas'].append(ticker[1]['bought units'])
+      calendar1_df['Unidades Vendidas'].append(ticker[1]['sold units'])
+      sum_profit += ticker[1]['profit']
+      sum_loss += ticker[1]['loss']
+      if (i == len(tickers) - 1):
+        calendar1_df['Total Lucro'].append(sum_profit)
+        calendar1_df['Total Prejuizo'].append(sum_loss)
+        sum_profit = 0
+        sum_loss = 0
+      else:
+        calendar1_df['Total Lucro'].append('')
+        calendar1_df['Total Prejuizo'].append('')
+  calendar1_df = pd.DataFrame(calendar1_df)
+  calendar1_df['Unidades Vendidas'] = abs(calendar1_df['Unidades Vendidas'])
+  # print([row for row in calendar1_df.groupby('Mes')])
+  sorted_df = calendar1_df.sort_values(by='Mes')
+  print(sorted_df)
+  sorted_df.to_excel('draft.xlsx')
+  # print(calendar1_df.loc[calendar1_df['Mes'] == 7]['Lucro'].sum())
+  # print(calendar1_df.Lucro.sum())
+  # calendar1_df.loc[calendar1_df.iloc[-1].name, 'Lucro'] = 1
+  # print(calendar1_df.iloc[-1])
+  
+    
 
   # df = pd.DataFrame.from_dict(results)
   index = {
